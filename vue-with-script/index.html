@@ -19,6 +19,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <script>
+      var eventBus = new Vue()
+
       Vue.component("product", {
         props: {
           premium: {
@@ -26,6 +28,11 @@
             required: true
           }
         },
+            mounted() {
+      eventBus.$on('form-submit', productReview => {
+        this.reviews.push(productReview)
+      })
+    },
         template: `
         <div class="product">
         <div class="product-image">
@@ -60,7 +67,7 @@
           >
             Add to cart
           </button>
-          <product-tabs @add-review="addReview" :reviews="reviews"></product-tabs>
+          <product-tabs  :reviews="reviews"></product-tabs>
 
 
         </div>
@@ -102,10 +109,7 @@
           },
           updateProduct(index) {
             this.selectedVariant = index;
-          } ,
-              addReview(review) {
-            this.reviews.unshift(review);
-          }
+          } 
         
           
         },
@@ -148,7 +152,7 @@
 
    
        <div v-show="selectedTab==='Make a Review'">
-       <product-review  @form-submit="addReview"></product-review>
+       <product-review ></product-review>
        </div>
 
         </div>
@@ -159,12 +163,7 @@
             selectedTab: "Reviews",
           };
         },
-        methods: {
-          addReview(review) {
-            this.$emit('add-review',review)
-            
-          }
-        }
+
       });
 
       Vue.component("product-review", {
@@ -217,7 +216,7 @@
         methods: {
           onSubmit() {
             if (this.name && this.review && this.rating) {
-              this.$emit("form-submit", {
+              eventBus.$emit("form-submit", {
                 name: this.name,
                 review: this.review,
                 rating: this.rating
